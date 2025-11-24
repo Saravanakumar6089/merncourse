@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seat Booking App</title>
+    <style>
+        /* General body styling */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Styling for the main app container */
+        .app-container {
+            max-width: 600px;
+            width: 95%;
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        /* Screen Indicator CSS */
+        .screen-indicator {
+            background-color: #a0a0a0;
+            color: #fff;
+            padding: 10px 0;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 3px;
+        }
+
+        /* Seat Map Container CSS */
+        .seat-map-container {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr); /* Example grid: 10 columns */
+            gap: 10px;
+            margin-bottom: 25px;
+            perspective: 1000px; /* Optional: adds a slight 3D perspective to the seats */
+        }
+
+        /* Basic seat styling (JS will handle specific colors) */
+        .seat {
+            height: 30px;
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 4px 4px 0 0;
+            cursor: pointer;
+            transition: transform 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 10px;
+            font-weight: 500;
+        }
+
+        /* Legend styles */
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        /* Specific seat colors (using class names from HTML structure) */
+        .seat.available {
+            background-color: #4ade80; /* Tailwind green-400 */
+        }
+        .seat.selected {
+            background-color: #3b82f6; /* Tailwind blue-500 */
+            border: 2px solid #1e3a8a;
+        }
+        .seat.booked {
+            background-color: #ef4444; /* Tailwind red-500 */
+            cursor: not-allowed;
+        }
+
+        /* Button style */
+        .book-button {
+            padding: 12px 25px;
+            background-color: #f97316; /* Tailwind orange-600 */
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .book-button:hover:not(:disabled) {
+            background-color: #ea580c; /* Tailwind orange-700 */
+        }
+        
+        .book-button:disabled {
+            background-color: #9ca3af; /* Tailwind gray-400 */
+            cursor: not-allowed;
+        }
+        </style>
+</head>
+<body>
+
+    <!-- Main application container -->
+    <div id="app-container" class="app-container">
+        
+        <h1 class="header">Seat Booking App</h1>
+
+        <!-- Legend and Summary Panel -->
+        <div id="summary-panel" class="summary-panel">
+            <div class="legend">
+                <div class="legend-item">
+                    <span class="seat available"></span> Available
+                </div>
+                <div class="legend-item">
+                    <span class="seat selected"></span> Selected
+                </div>
+                <div class="legend-item">
+                    <span class="seat booked"></span> Booked
+                </div>
+            </div>
+
+            <!-- Output Display -->
+            <p class="summary-text">
+                Selected Seats: <span id="selected-count">0</span>
+            </p>
+            <p class="summary-text">
+                Total Price: $<span id="total-price">0.00</span>
+            </p>
+        </div>
+
+        <!-- Movie Screen Indicator -->
+        <div class="screen-indicator">
+            SCREEN
+        </div>
+
+        <!-- Seat Grid Container -->
+        <div id="seat-map" class="seat-map-container">
+            <!-- Row A -->
+            <div class="seat available" data-row="A" data-col="1" onclick=toggleSelection(0,0)>A1</div>
+            <div class="seat available" data-row="A" data-col="2" onclick=toggleSelection(0,1)>A2</div>
+            <div class="seat available" data-row="A" data-col="3" onclick=toggleSelection(0,2)>A3</div>
+            <div class="seat available" data-row="A" data-col="4" onclick=toggleSelection(0,3)>A4</div>
+            <div class="seat available" data-row="A" data-col="5" onclick=toggleSelection(0,4)>A5</div>
+            <div class="seat available" data-row="A" data-col="6" onclick=toggleSelection(0,5)>A6</div>
+            <div class="seat available" data-row="A" data-col="7" onclick=toggleSelection(0,6)>A7</div>
+            <div class="seat available" data-row="A" data-col="8" onclick=toggleSelection(0,7)>A8</div>
+            <div class="seat available" data-row="A" data-col="9" onclick=toggleSelection(0,8)>A9</div>
+            <div class="seat available" data-row="A" data-col="10" onclick=toggleSelection(0,9)>A10</div>
+
+            <!-- Row B -->
+            <div class="seat available" data-row="B" data-col="1" onclick=toggleSelection(1,0)>B1</div>
+            <div class="seat available" data-row="B" data-col="2" onclick=toggleSelection(1,1)>B2</div>
+            <div class="seat available" data-row="B" data-col="3" onclick=toggleSelection(1,2)>B3</div>
+            <div class="seat available" data-row="B" data-col="4" onclick=toggleSelection(1,3)>B4</div>
+            <div class="seat available" data-row="B" data-col="5" onclick=toggleSelection(1,4)>B5</div>
+            <div class="seat available" data-row="B" data-col="6" onclick=toggleSelection(1,5)>B6</div>
+            <div class="seat available" data-row="B" data-col="7" onclick=toggleSelection(1,6)>B7</div>
+            <div class="seat available" data-row="B" data-col="8" onclick=toggleSelection(1,7)>B8</div>
+            <div class="seat available" data-row="B" data-col="9" onclick=toggleSelection(1,8)>B9</div>
+            <div class="seat available" data-row="B" data-col="10" onclick=toggleSelection(1,9)>B10</div>
+
+            <!-- Row C -->
+            <div class="seat available" data-row="C" data-col="1" onclick=toggleSelection(2,0)>C1</div>
+            <div class="seat available" data-row="C" data-col="2" onclick=toggleSelection(2,1)>C2</div>
+            <div class="seat available" data-row="C" data-col="3" onclick=toggleSelection(2,2)>C3</div>
+            <div class="seat available" data-row="C" data-col="4" onclick=toggleSelection(2,3)>C4</div>
+            <div class="seat available" data-row="C" data-col="5" onclick=toggleSelection(2,4)>C5</div>
+            <div class="seat available" data-row="C" data-col="6" onclick=toggleSelection(2,5)>C6</div>
+            <div class="seat available" data-row="C" data-col="7" onclick=toggleSelection(2,6)>C7</div>
+            <div class="seat available" data-row="C" data-col="8" onclick=toggleSelection(2,7)>C8</div>
+            <div class="seat available" data-row="C" data-col="9" onclick=toggleSelection(2,8)>C9</div>
+            <div class="seat available" data-row="C" data-col="10" onclick=toggleSelection(2,9)>C10</div>
+
+            <!-- Row D -->
+            <div class="seat available" data-row="D" data-col="1" onclick=toggleSelection(3,0)>D1</div>
+            <div class="seat available" data-row="D" data-col="2" onclick=toggleSelection(3,1)>D2</div>
+            <div class="seat available" data-row="D" data-col="3" onclick=toggleSelection(3,2)>D3</div>
+            <div class="seat available" data-row="D" data-col="4" onclick=toggleSelection(3,3)>D4</div>
+            <div class="seat available" data-row="D" data-col="5" onclick=toggleSelection(3,4)>D5</div>
+            <div class="seat available" data-row="D" data-col="6" onclick=toggleSelection(3,5)>D6</div>
+            <div class="seat available" data-row="D" data-col="7" onclick=toggleSelection(3,6)>D7</div>
+            <div class="seat available" data-row="D" data-col="8" onclick=toggleSelection(3,7)>D8</div>
+            <div class="seat available" data-row="D" data-col="9" onclick=toggleSelection(3,8)>D9</div>
+            <div class="seat available" data-row="D" data-col="10" onclick=toggleSelection(3,9)>D10</div>
+            
+            <!-- Row E -->
+            <div class="seat available" data-row="E" data-col="1" onclick=toggleSelection(4,0)>E1</div>
+            <div class="seat available" data-row="E" data-col="2" onclick=toggleSelection(4,1)>E2</div>
+            <div class="seat available" data-row="E" data-col="3" onclick=toggleSelection(4,2)>E3</div>
+            <div class="seat available" data-row="E" data-col="4" onclick=toggleSelection(4,3)>E4</div>
+            <div class="seat available" data-row="E" data-col="5" onclick=toggleSelection(4,4)>E5</div>
+            <div class="seat available" data-row="E" data-col="6" onclick=toggleSelection(4,5)>E6</div>
+            <div class="seat available" data-row="E" data-col="7" onclick=toggleSelection(4,6)>E7</div>
+            <div class="seat available" data-row="E" data-col="8" onclick=toggleSelection(4,7)>E8</div>
+            <div class="seat available" data-row="E" data-col="9" onclick=toggleSelection(4,8)>E9</div>
+            <div class="seat available" data-row="E" data-col="10" onclick=toggleSelection(4,9)>E10</div>
+        </div>
+
+        <!-- Booking Action -->
+        <button id="book-btn" class="book-button" onclick=bookSelectedSeats()>
+            Confirm Booking
+        </button>
+
+        <!-- Message/Error Box -->
+        <div id="message-box" class="message-box"></div>
+
+    </div>
+    
+    <script src = './seat_booking.js' >
+        // Your JavaScript will go here
+    </script>
+</body>
+</html>
