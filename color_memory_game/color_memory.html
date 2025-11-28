@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Memory Game</title>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 40px;
+            padding-bottom: 40px;
+            padding-left: 16px;
+            padding-right: 16px;
+        }
+
+        .header-container {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .game-title {
+            font-size: 2.25rem;
+            font-weight: 800;
+            color: #4338ca;
+            margin-bottom: 0.5rem;
+        }
+
+        .game-quote {
+            font-size: 1.125rem;
+            font-style: italic;
+            color: #4b5563;
+        }
+
+        .card-grid-container {
+            max-width: 400px;
+            width: 100%;
+            padding: 1rem;
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        .grid-layout {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+
+        .card {
+            aspect-ratio: 1 / 1; 
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, background-color 0.3s;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0;
+            
+            background-color: #d1d5db;
+            border-radius: 0.5rem;
+        }
+
+        .card:hover {
+            background-color: #9ca3af;
+        }
+
+        
+
+    </style>
+</head>
+<body class="">
+
+    <div class="header-container">
+        <h1 class="game-title">Color Memory Game</h1>
+        <p class="game-quote">
+            Challenge your mind: Can you match the colors before time runs out?
+        </p>
+    </div>
+
+    <div id="game-grid" class="card-grid-container">
+        <div class="grid-layout">
+            <!-- Row 1 -->
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            
+            <!-- Row 2 -->
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+
+            <!-- Row 3 -->
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+
+            <!-- Row 4 -->
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+            <div class="card"></div>
+        </div>
+    </div>
+
+</body>
+</html>
