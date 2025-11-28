@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+</head>
+<body>
+    <h1>Add New Show</h1>
+    <label for="showName">Show Name:</label><br>
+    <input type="text" id="showName"><br><br>
+    <label for="actorName">Actor Name:</label><br>
+    <textarea id="actorName" rows="4"></textarea><br><br>
+    <label for="showDescription">Show Description:</label><br>
+    <textarea id="showDescription" rows="4"></textarea><br><br>
+    <label for="duration">Duration (in hrs):</label><br>
+    <input type="number" id="duration"><br><br>
+    <button onclick="addShow()">Add Show</button>
+
+    <h2>Movies</h2>
+    <div id="shows">
+        <!-- books will be displayed here -->
+    </div>
+    <script src="./admin.js"></script>
+</body>
+</html>
