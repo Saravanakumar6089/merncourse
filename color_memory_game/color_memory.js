@@ -1,6 +1,7 @@
 const stmenu = document.getElementById('start-menu');
 const democt = document.getElementById('demo-content');
 const gamegd = document.getElementById('game-grid');
+const cardgd = document.getElementById('card-grid');
 
 //to get the option from user
 let diff=0; //default - easy - 0; 
@@ -28,9 +29,32 @@ document.getElementById('how-to-play-btn').addEventListener('click', () => {
 });
 
 //game logic
-function startGame(d){
-    cardLayout.innerHTML = '';
-    cardLayout.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
-    const totalCards = size * size;
+function startGame(size){
+    cardgd.innerHTML = '';
+    var cols = 0;
+    if(size==0){
+        cols = 5; //Easy mode
+    }else{
+        cols = 2*(size+1); //Other modes
+    }
+
+    cardgd.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+    const totalCards = size==0? 10: cols*cols;
+
+    for(var i=0;i<totalCards;i++){
+        let card = document.createElement('div');
+        card.classList.add('card');
+        card.setAttribute('data-val',Math.floor(i/2));
+        card.innerHTML = `<h3>${Math.floor(i/2)}</h3>`;
+        
+        //adding  color, randomisation logic
+        card.addEventListener('click',()=>{
+            card.classList.remove('card');
+            card.classList.add('face');
+            //evalClick(id);
+        });
+
+        cardgd.appendChild(card);
+    }
     //YTC
 }
