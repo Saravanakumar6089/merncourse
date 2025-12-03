@@ -2,6 +2,9 @@ const stmenu = document.getElementById('start-menu');
 const democt = document.getElementById('demo-content');
 const gamegd = document.getElementById('game-grid');
 const cardgd = document.getElementById('card-grid');
+const score = document.getElementById('score');
+const timer = document.getElementById('timer');
+
 
 //to get the option from user
 let diff=0; //default - easy - 0; 
@@ -43,6 +46,7 @@ function startGame(size){
 
     var colorptr=0;
     colorlist = generateDistinctColors(totalCards/2);
+    let cardlist = [];
     for(var i=0;i<totalCards;i++){
         let card = document.createElement('div');
         card.classList.add('card');
@@ -52,16 +56,17 @@ function startGame(size){
             colorptr++;
         }
         card.dataset.secretColor = colorlist[colorptr];
-        //adding  color, randomisation logic
-        card.addEventListener('click',()=>{
-            card.classList.remove('card');
-            card.classList.add('face');
-            card.style.backgroundColor = card.dataset.secretColor;
-            //evalClick(id);
-        });
 
-        cardgd.appendChild(card);
+        card.addEventListener('click',(e)=>{
+            evalClick(e.target, card.getAttribute('data-val'));
+        });
+        cardlist.push(card);
     }
+
+    cardlist = shuffleArray(cardlist);
+    cardlist.forEach((card)=>{cardgd.appendChild(card);});
+
+
     //YTC
 }
 
@@ -78,3 +83,43 @@ function generateDistinctColors(count) {
         }
         return colors;
     }
+
+function shuffleArray(array) {
+    let currentIndex = array.length, randomIndex;
+    while (currentIndex !== 0) {
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+        [array[currentIndex], array[randomIndex]] = [
+            array[randomIndex], array[currentIndex]];
+    }
+    return array;
+}
+
+let a = -1, b = -1, scorect = 0;
+let cardA, cardB;
+function evalClick(c, val){
+    if(a==-1){
+        a = val;
+        cardA = c;
+        cardA.classList.remove('card');
+        cardA.classList.add('face');
+        cardA.style.backgroundColor = cardA.dataset.secretColor;
+    }else if(b==-1){
+        b = val;
+        cardB = c;
+        cardB.classList.remove('card');
+        cardB.classList.add('face');
+        cardB.style.backgroundColor = cardB.dataset.secretColor;
+        if(a==b){
+            scorect += 10;
+            score.innerHTML = scorect;
+        }else{
+            setTimeout(()=>{
+                cardA.classList.remove('face'); cardB.classList.remove('face');
+                cardA.classList.add('card'); cardB.classList.add('card'); 
+                cardA.style.backgroundColor = '#d1d5db'; cardB.style.backgroundColor = '#d1d5db'; 
+            }, 1000);
+        }
+        a = -1; b = -1;
+    }
+}
