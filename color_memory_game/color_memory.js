@@ -41,16 +41,22 @@ function startGame(size){
     cardgd.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
     const totalCards = size==0? 10: cols*cols;
 
+    var colorptr=0;
+    colorlist = generateDistinctColors(totalCards/2);
     for(var i=0;i<totalCards;i++){
         let card = document.createElement('div');
         card.classList.add('card');
         card.setAttribute('data-val',Math.floor(i/2));
         card.innerHTML = `<h3>${Math.floor(i/2)}</h3>`;
-        
+        if(i!=0 && Math.floor(i/2)!=Math.floor((i-1)/2)){
+            colorptr++;
+        }
+        card.dataset.secretColor = colorlist[colorptr];
         //adding  color, randomisation logic
         card.addEventListener('click',()=>{
             card.classList.remove('card');
             card.classList.add('face');
+            card.style.backgroundColor = card.dataset.secretColor;
             //evalClick(id);
         });
 
@@ -58,3 +64,17 @@ function startGame(size){
     }
     //YTC
 }
+
+let colorlist = [];
+function generateDistinctColors(count) {
+        const colors = [];
+        for (let i = 0; i < count; i++) {
+            var letters = '0123456789ABCDEF';
+            var color = '#';
+            for (var j = 0; j < 6; j++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            colors.push(color);
+        }
+        return colors;
+    }
