@@ -4,7 +4,8 @@ const gamegd = document.getElementById('game-grid');
 const cardgd = document.getElementById('card-grid');
 const score = document.getElementById('score');
 const timer = document.getElementById('timer');
-
+const resetbtn = document.getElementById('reset-btn');
+let started = false;
 
 //to get the option from user
 let diff=0; //default - easy - 0; 
@@ -31,7 +32,19 @@ document.getElementById('how-to-play-btn').addEventListener('click', () => {
     democt.innerHTML = "<p>Match all pairs of colors before the time runs out! Click a card to flip it.</p>";
 });
 
+//enable reset
+resetbtn.addEventListener('click',()=>{
+    started = false;
+    gamequeue.length = 0;
+    stmenu.classList.remove('hidden');
+    democt.classList.remove('hidden');
+    gamegd.classList.add('hidden');
+})
+
 //game logic
+const gamequeue = [];
+let evalInterval = null;
+let clickct = 0;
 function startGame(size){
     cardgd.innerHTML = '';
     var cols = 0;
@@ -58,16 +71,24 @@ function startGame(size){
         card.dataset.secretColor = colorlist[colorptr];
 
         card.addEventListener('click',(e)=>{
-            evalClick(e.target, card.getAttribute('data-val'));
+            //addClick(e.target, card.getAttribute('data-val'));
+            if(card.classList.contains('clicked')) alert('Cant click twice!');
+            else{
+                clickct++;
+                card.classList.add('clicked');
+                gamequeue.push(e.target);
+                if (started && clickct%2==0 && evalInterval === null) {
+                    evalInterval = setInterval(evalClick, 100);
+                }
+            } 
         });
         cardlist.push(card);
     }
 
     cardlist = shuffleArray(cardlist);
     cardlist.forEach((card)=>{cardgd.appendChild(card);});
-
-
-    //YTC
+    let ct = 0;
+    started = true;
 }
 
 let colorlist = [];
@@ -97,19 +118,22 @@ function shuffleArray(array) {
 
 let a = -1, b = -1, scorect = 0;
 let cardA, cardB;
-function evalClick(c, val){
-    if(a==-1){
-        a = val;
-        cardA = c;
+function evalClick(){
+    console.log('click eval');
+    if(gamequeue.length>1){
+        cardA = gamequeue.shift();
+        cardB = gamequeue.shift();
+        a = cardA.getAttribute('data-val');
+        b = cardB.getAttribute('data-val');
+
         cardA.classList.remove('card');
         cardA.classList.add('face');
         cardA.style.backgroundColor = cardA.dataset.secretColor;
-    }else if(b==-1){
-        b = val;
-        cardB = c;
+
         cardB.classList.remove('card');
         cardB.classList.add('face');
         cardB.style.backgroundColor = cardB.dataset.secretColor;
+        
         if(a==b){
             scorect += 10;
             score.innerHTML = scorect;
@@ -118,8 +142,11 @@ function evalClick(c, val){
                 cardA.classList.remove('face'); cardB.classList.remove('face');
                 cardA.classList.add('card'); cardB.classList.add('card'); 
                 cardA.style.backgroundColor = '#d1d5db'; cardB.style.backgroundColor = '#d1d5db'; 
-            }, 1000);
+                cardA.classList.remove('clicked'); cardB.classList.remove('clicked');
+            }, 1500);
         }
         a = -1; b = -1;
     }
+    clearInterval(evalInterval);
+    evalInterval = null;
 }
