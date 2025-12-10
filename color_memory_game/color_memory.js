@@ -5,6 +5,8 @@ const cardgd = document.getElementById('card-grid');
 const score = document.getElementById('score');
 const timer = document.getElementById('timer');
 const resetbtn = document.getElementById('reset-btn');
+const closepopup = document.getElementById('closePopupBtn');
+const popupcard = document.getElementById('popup-card');
 let started = false;
 
 //to get the option from user
@@ -33,17 +35,22 @@ document.getElementById('how-to-play-btn').addEventListener('click', () => {
 });
 
 //enable reset
-resetbtn.addEventListener('click',()=>{
+let evalInterval = null;
+let timerInterval = null;
+function resetGame(){
     started = false;
     gamequeue.length = 0;
+    clearInterval(evalInterval);
+    clearInterval(timerInterval);
+    scorect = 0; score.innerHTML = '';
     stmenu.classList.remove('hidden');
     democt.classList.remove('hidden');
     gamegd.classList.add('hidden');
-})
+}
+resetbtn.addEventListener('click',resetGame);
 
 //game logic
 const gamequeue = [];
-let evalInterval = null;
 let clickct = 0;
 function startGame(size){
     cardgd.innerHTML = '';
@@ -77,9 +84,6 @@ function startGame(size){
                 clickct++;
                 card.classList.add('clicked');
                 gamequeue.push(e.target);
-                if (started && clickct%2==0 && evalInterval === null) {
-                    evalInterval = setInterval(evalClick, 100);
-                }
             } 
         });
         cardlist.push(card);
@@ -87,8 +91,14 @@ function startGame(size){
 
     cardlist = shuffleArray(cardlist);
     cardlist.forEach((card)=>{cardgd.appendChild(card);});
-    let ct = 0;
     started = true;
+
+    timerInterval = setInterval(updateTimer, 1000);
+    console.log("Timer started.");
+
+    evalInterval = setInterval(()=>{
+        if(gamequeue.length>1)evalClick();
+    }, 650);
 }
 
 let colorlist = [];
@@ -120,33 +130,54 @@ let a = -1, b = -1, scorect = 0;
 let cardA, cardB;
 function evalClick(){
     console.log('click eval');
-    if(gamequeue.length>1){
-        cardA = gamequeue.shift();
-        cardB = gamequeue.shift();
-        a = cardA.getAttribute('data-val');
-        b = cardB.getAttribute('data-val');
+    cardA = gamequeue.shift();
+    cardB = gamequeue.shift();
+    a = cardA.getAttribute('data-val');
+    b = cardB.getAttribute('data-val');
 
-        cardA.classList.remove('card');
-        cardA.classList.add('face');
-        cardA.style.backgroundColor = cardA.dataset.secretColor;
+    cardA.classList.remove('card');
+    cardA.classList.add('face');
+    cardA.style.backgroundColor = cardA.dataset.secretColor;
 
-        cardB.classList.remove('card');
-        cardB.classList.add('face');
-        cardB.style.backgroundColor = cardB.dataset.secretColor;
-        
-        if(a==b){
-            scorect += 10;
-            score.innerHTML = scorect;
-        }else{
-            setTimeout(()=>{
-                cardA.classList.remove('face'); cardB.classList.remove('face');
-                cardA.classList.add('card'); cardB.classList.add('card'); 
-                cardA.style.backgroundColor = '#d1d5db'; cardB.style.backgroundColor = '#d1d5db'; 
-                cardA.classList.remove('clicked'); cardB.classList.remove('clicked');
-            }, 1500);
+    cardB.classList.remove('card');
+    cardB.classList.add('face');
+    cardB.style.backgroundColor = cardB.dataset.secretColor;
+    
+    if(a==b){
+        scorect += 10;
+        score.innerHTML = scorect;
+        //YTD popup card condition update, highscore(time based) in popup
+        if(scorect==50){
+            document.getElementById('result-score').textContent = scorect;
+            document.getElementById('result-time').textContent = timer.textContent;
+            popupcard.style.display = 'flex';
         }
-        a = -1; b = -1;
+    }else{
+        setTimeout(()=>{
+            cardA.classList.remove('face'); cardB.classList.remove('face');
+            cardA.classList.add('card'); cardB.classList.add('card'); 
+            cardA.style.backgroundColor = '#d1d5db'; cardB.style.backgroundColor = '#d1d5db'; 
+            cardA.classList.remove('clicked'); cardB.classList.remove('clicked');
+        }, 600);
     }
-    clearInterval(evalInterval);
-    evalInterval = null;
+    a = -1; b = -1;
 }
+
+//timer functionality - update timer every second
+let totalSeconds = 0;
+function updateTimer() {
+    totalSeconds++;
+    const minutes = Math.floor(totalSeconds / 60);
+    const remainingSeconds = totalSeconds % 60;
+    const formattedMinutes = String(minutes).padStart(2, '0');
+    const formattedSeconds = String(remainingSeconds).padStart(2, '0');
+    timer.textContent = `${formattedMinutes}:${formattedSeconds}`;
+}
+
+//close popupcard
+closepopup.addEventListener('click',()=>{
+    popupcard.style.display = 'none';
+    //implement score saving and high scores with json YTD
+    resetGame();
+})
+
