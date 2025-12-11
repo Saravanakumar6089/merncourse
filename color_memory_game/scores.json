@@ -1,0 +1,11 @@
+{
+    "scores":[
+        {
+            "name":"Guest",
+            "highScore" : 0
+        },{
+            "name":"Player1",
+            "highScore" : 30
+        }
+    ]
+}
