@@ -2,10 +2,12 @@
     "scores":[
         {
             "name":"Guest",
-            "highScore" : 0
+            "seconds": 30,
+            "highScore" : "00:30"
         },{
             "name":"Player1",
-            "highScore" : 30
+            "seconds": 70,
+            "highScore" : "01:10"
         }
     ]
 }

@@ -12,9 +12,10 @@ const nameInput = document.getElementById('name-input');
 const submitButton = document.getElementById('submitNameBtn');
 const nameDisplay = document.getElementById('player-name-display');
 let started = false;
+localStorage.setItem('scores', '[{"name":"Guest","seconds": 30,"highScore" : "00:30"},{"name":"Player1","seconds": 70,"highScore" : "01:10"}]');
 
 //to get the option from user
-let diff=0; //default - easy - 0; 
+//default - easy - 0; 
 /* medium - 1; hard - 2; super hard - 3 */
 const options = document.querySelectorAll('.diff-option');
 
@@ -35,7 +36,7 @@ function setDifficultyAndStart(gridsize){
 //set demo content
 document.getElementById('how-to-play-btn').addEventListener('click', () => {
     democt.classList.remove('hidden');
-    democt.innerHTML = "<p>Match all pairs of colors before the time runs out! Click a card to flip it.</p>";
+    democt.innerHTML = "<p>Match all pairs of colors as quick as possible! Click a card to flip it.</p>";
 });
 
 //enable reset
@@ -45,8 +46,7 @@ function resetGame(){
     started = false;
     gamequeue.length = 0;
     clearInterval(evalInterval);
-    clearInterval(timerInterval);
-    scorect = 0; score.innerHTML = '';
+    scorect = 0; score.innerHTML = '--';
     totalSeconds = 0; timer.innerHTML = '';
     stmenu.classList.remove('hidden');
     democt.classList.remove('hidden');
@@ -83,13 +83,19 @@ document.addEventListener('DOMContentLoaded', () => {
 //game logic
 const gamequeue = [];
 let clickct = 0;
+let maxscore = 0;
+let highScoresData = null;
 function startGame(size){
+    highScoresData = loadHighScores();
+    console.log(highScoresData);
     cardgd.innerHTML = '';
     var cols = 0;
     if(size==0){
         cols = 5; //Easy mode
+        maxscore = 50;
     }else{
         cols = 2*(size+1); //Other modes
+        maxscore = 10*cols*cols/2;
     }
 
     cardgd.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
@@ -123,6 +129,9 @@ function startGame(size){
     cardlist = shuffleArray(cardlist);
     cardlist.forEach((card)=>{cardgd.appendChild(card);});
     started = true;
+    let playerEntry = highScoresData.find(entry => entry.name==playerName);
+    console.log(playerEntry);
+    if(playerEntry) score.innerHTML = playerEntry.highScore;
 
     timerInterval = setInterval(updateTimer, 1000);
     console.log("Timer started.");
@@ -176,10 +185,8 @@ function evalClick(){
     
     if(a==b){
         scorect += 10;
-        score.innerHTML = scorect;
-        //YTD popup card condition update, highscore(time based) in popup
-        if(scorect==50){
-            document.getElementById('result-score').textContent = scorect;
+        if(scorect==maxscore){
+            clearInterval(timerInterval);
             document.getElementById('result-time').textContent = timer.textContent;
             popupcard.style.display = 'flex';
         }
@@ -205,59 +212,47 @@ function updateTimer() {
     timer.textContent = `${formattedMinutes}:${formattedSeconds}`;
 }
 
-//@returns {Promise<object>} A promise that resolves with the parsed highscores JSON data.
-async function loadHighScores() {
-    const filePath = 'scores.json';
-    try {
-        const response = await fetch(filePath);
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const data = await response.json();
-        console.log("High scores data loaded successfully.");
-        return data;
-    } catch (error) {
-        console.error("Failed to load high scores:", error);
-        return { "scores": [] }; 
-    }
-}
+function loadHighScores() {
+    const jsonString = localStorage.getItem('scores');
+    if (jsonString) {
+        try {
+            return JSON.parse(jsonString);
+        } catch (error) {
+            console.error("Error parsing stored JSON:", error);
+            return { "scores": [] };
+        } 
+    } else {
+        return { "scores": [] };
+    } 
+} 
 
-let highScoresData = null;
-
-async function updateHighScore() {
-    await loadHighScores()
-        .then(data => {
-            highScoresData = data;
-            console.log("Parsed Data:", highScoresData);
-            //show high score data for current player YTD
-        })
-        .catch(err => {
-            console.error("Initialization failed:", err);
-        });
-
-    let playerEntry = highScoresData.scores.find(entry => entry.name==playerName);
+function updateHighScore() {
+    let playerEntry = highScoresData.find(entry => entry.name==playerName);
 
     if (playerEntry) {
-        const existingScore = playerEntry.highScore;
-        if (scorect > existingScore) {
-            playerEntry.highScore = scorect; //write to file YTD
-            console.log(`${playerName}'s high score updated from ${existingScore} to ${scorect}.`);
+        const existingScore = playerEntry.seconds;
+        if (totalSeconds < existingScore) {
+            playerEntry.seconds = totalSeconds;
+            playerEntry.highScore = timer.textContent;
+            console.log(`${playerName}'s high score updated from ${existingScore} to ${totalSeconds}.`);
         } else {
-            console.log(`${playerName}'s score (${scorect}) did not beat the existing high score (${existingScore}).`);
+            console.log(`${playerName}'s score (${totalSeconds}) did not beat the existing high score (${existingScore}).`);
         }
     } else {
         const newEntry = {};
         newEntry["name"] = playerName; 
-        newEntry["highScore"] = scorect;
-        highScoresData.scores.push(newEntry);
+        newEntry["highScore"] = timer.textContent;
+        newEntry["seconds"] = totalSeconds;
+        highScoresData.push(newEntry);
         console.log(`New player (${playerName}) added with score ${scorect}.`);
     }
+    localStorage.setItem('scores',JSON.stringify(highScoresData));
 }
 
 //close popupcard
-closepopup.addEventListener('click',async ()=>{
+closepopup.addEventListener('click',()=>{
     popupcard.style.display = 'none';
-    await updateHighScore();
+    updateHighScore();
     resetGame();
 })
 
